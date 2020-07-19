@@ -31,6 +31,10 @@ async def math(ctx):
 async def add(ctx, num1, num2):
     await ctx.send(str(int(num1) + int(num2)))
 
+@client.command()
+async def sub(ctx, num1, num2):
+    await ctx.send(str(int(num1) - int(num2)))
+
 @client.command(aliases=["multiply", "times"])
 async def mult(ctx, num1, num2):
     await ctx.send(str(int(num1)*int(num2)))
