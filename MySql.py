@@ -12,18 +12,28 @@ async def on_ready():
     print('{0.user} is connected'.format(client))
 
 @client.event
+async def on_member_join(member):
+    print(member)
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(member)])
+    user = c.fetchall()
+    if user is None:
+        c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(member), 1, 0, 0))
+        conn.commit()
+    
+
+@client.event
 async def on_message(ctx):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author)])
     user = c.fetchone()
-    if user[0] != str(client.user):
+    if ctx.author != str(client.user):
         if user is None:
-            c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(ctx.author), 0, 1, 0))
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(ctx.author), 1, 0, 0))
             conn.commit()
             c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author)])
             user = c.fetchone()
         msgValue = round(pow(len(ctx.content), 0.35))
         newXP = user[2] + msgValue
-        print(msgValue)
+        print(str(ctx.author) + " has gained " + str(msgValue) + "XP")
 
         if newXP >= round(100 * pow(user[1], 1.2)):
             currentLvl = user[1] + 1
