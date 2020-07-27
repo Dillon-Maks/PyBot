@@ -12,16 +12,14 @@ async def on_ready():
 
 @client.command()
 async def xpcheck(ctx):
-    user = c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author)])
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author)])
+    user = c.fetchone()
     if user is None:
         c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(ctx.author), 0, 0, 0))
         conn.commit()
-        text = c.fetchone()
-        await ctx.send(c.fetchone())
+        await ctx.send(str(user[2]))
     else:
-        text = c.fetchone()
-        await ctx.send(str(text[2]))
-    conn.commit()
+        await ctx.send(str(user[2]))
 
 client.run('NzMzNDY4ODA1Njk0NzUwNzQw.XxDmKQ.SAJEVE2YO6sXsZ5up7R6TinlYt8')
 
