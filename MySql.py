@@ -21,9 +21,11 @@ async def on_message(ctx):
             conn.commit()
             c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author)])
             user = c.fetchone()
-        newXP = user[2] + random.randrange(1, 3)
+        msgValue = round(pow(len(ctx.content), 0.35))
+        newXP = user[2] + msgValue
+        print(msgValue)
 
-        if newXP > round(100 * pow(user[1], 1.2)):
+        if newXP >= round(100 * pow(user[1], 1.2)):
             currentLvl = user[1] + 1
             c.execute("UPDATE users SET Level=? Where UserID=?", (currentLvl, str(ctx.author)))
             conn.commit()
