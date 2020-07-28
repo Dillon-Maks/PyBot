@@ -1,4 +1,5 @@
 import sqlite3
+import random
 from discord.ext import commands
 from discord.utils import find
 
@@ -14,7 +15,7 @@ async def on_ready():
 @client.event
 async def on_member_join(member):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(member)])
-    user = c.fetchall()
+    user = c.fetchone()
     if user is None:
         c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(member), 1, 0, 0))
         conn.commit()
@@ -23,15 +24,9 @@ async def on_member_join(member):
 
 @client.event
 async def on_guild_join(guild):
-    general = find(lambda x: x.name == 'general',  guild.text_channels)
-    welcome = find(lambda x: x.name == 'welcome', guild.text_channels)
-    rules = find(lambda x: x.name == 'rules', guild.text_channels)
-    if general and general.permissions_for(guild.me).send_messages:
-        await general.send('PyBot is Here! Command Prefix is *')
-    elif welcome:
-        await welcome.send('PyBot is Here! Command Prefix is *!')
-    elif rules:
-        pass
+    rules = find(lambda x: x.name == 'welcome-and-rules', guild.text_channels)
+    if rules:
+        await rules.send("PyBot is Here! Command Prefix is *")
 
 @client.event
 async def on_message(ctx):
@@ -49,8 +44,10 @@ async def on_message(ctx):
 
         if newXP >= round(100 * pow(user[1], 1.2)):
             currentLvl = user[1] + 1
-            c.execute("UPDATE users SET Level=? Where UserID=?", (currentLvl, str(ctx.author.id)))
+            gainedCredits = user[3] + round(user[1] * 5)
+            c.execute("UPDATE users SET Level=?, Currency=? Where UserID=?", (currentLvl, gainedCredits, str(ctx.author.id)))
             conn.commit()
+            await ctx.channel.send(client.get_user(ctx.author.id).mention + " is now level " + str(user[1] + 1) + "! You gained " + str(round(user[1] * 5)) + " credits.")
         elif newXP < 100:
             c.execute("UPDATE users set Level=1 WHERE UserID=?", [str(ctx.author.id)])
             conn.commit()
@@ -64,6 +61,41 @@ async def xpcheck(ctx):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
     await ctx.send("Level: " + str(user[1]) + "\n" + str(user[2]) + "/" + str(round(100 * pow(user[1], 1.2))))
+
+@client.command()
+async def creditcheck(ctx):
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
+    user = c.fetchone()
+    await ctx.send("Credits: " + str(user[3]))
+
+@client.command()
+async def coinflip(ctx, side: str, amount: int):
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
+    user = c.fetchone()
+    flippedSide = random.randrange(1, 3)
+    print(flippedSide)
+    print(flippedSide)
+    side.lower()
+
+    if user[3] < amount:
+        await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
+    elif side != "heads" or side != "tails":
+        await ctx.send(client.get_user(ctx.author.id).mention + " You must user either \"heads\" or \"tails\"")
+    elif amount > 0:
+        if amount > 9999999999:
+            amount = 9999999999
+        elif flippedSide == 1 and side == "heads":
+            newCredit = user[3] + amount
+            await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
+        elif flippedSide == 2 and side == "tails":
+            newCredit = user[3] + amount
+            await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
+        else:
+            newCredit = user[3] - amount
+            await ctx.send(client.get_user(ctx.author.id).mention + " Loss! You now have " + str(newCredit) + " credits.")
+        c.execute("UPDATE users SET Currency=? WHERE UserID=?", (newCredit, str(ctx.author.id)))
+    else:
+        await ctx.send(client.get_user(ctx.author.id).mention + " You must gamble a positive number of credits.")
 
 
 client.run('NzMzNDY4ODA1Njk0NzUwNzQw.XxDmKQ.SAJEVE2YO6sXsZ5up7R6TinlYt8')
