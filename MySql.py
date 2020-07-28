@@ -16,11 +16,12 @@ async def on_ready():
 async def on_member_join(member):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(member)])
     user = c.fetchone()
-    if user is None:
-        c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(member), 1, 0, 0))
-        conn.commit()
-    dm = client.get_user(member.id)
-    await dm.send("Welcome to the server!")
+    if member.id != client.user.id:
+        if user is None:
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(member), 1, 0, 0))
+            conn.commit()
+        dm = client.get_user(member.id)
+        await dm.send("Welcome to the server!")
 
 @client.event
 async def on_guild_join(guild):
@@ -32,7 +33,7 @@ async def on_guild_join(guild):
 async def on_message(ctx):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
-    if ctx.author != "PyBot#3261":
+    if ctx.author.id != client.user.id:
         if user is None:
             c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(ctx.author.id), 1, 0, 0))
             conn.commit()
