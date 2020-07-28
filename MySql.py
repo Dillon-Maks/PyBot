@@ -69,21 +69,23 @@ async def creditcheck(ctx):
     await ctx.send("Credits: " + str(user[3]))
 
 @client.command()
-async def coinflip(ctx, amount: int):
+async def coinflip(ctx, amount: str):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
     flippedSide = random.randrange(1, 3)
 
-    if user[3] < amount:
-        await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
-    elif amount > 0:
-        if flippedSide == 1:
-            newCredit = user[3] + amount
-            await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
-        else:
-            newCredit = user[3] - amount
-            await ctx.send(client.get_user(ctx.author.id).mention + " Loss! You now have " + str(newCredit) + " credits.")
-        c.execute("UPDATE users SET Currency=? WHERE UserID=?", (newCredit, str(ctx.author.id)))
+    if amount.isdigit():
+        amount = int(amount)
+        if user[3] < amount:
+            await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
+        elif amount > 0:
+            if flippedSide == 1:
+                newCredit = user[3] + amount
+                await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
+            else:
+                newCredit = user[3] - amount
+                await ctx.send(client.get_user(ctx.author.id).mention + " Loss! You now have " + str(newCredit) + " credits.")
+            c.execute("UPDATE users SET Currency=? WHERE UserID=?", (newCredit, str(ctx.author.id)))
     else:
         await ctx.send(client.get_user(ctx.author.id).mention + " You must gamble a positive number of credits.")
 
