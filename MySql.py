@@ -69,25 +69,15 @@ async def creditcheck(ctx):
     await ctx.send("Credits: " + str(user[3]))
 
 @client.command()
-async def coinflip(ctx, side: str, amount: int):
+async def coinflip(ctx, amount: int):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
     flippedSide = random.randrange(1, 3)
-    print(flippedSide)
-    print(flippedSide)
-    side.lower()
 
     if user[3] < amount:
         await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
-    elif side != "heads" or side != "tails":
-        await ctx.send(client.get_user(ctx.author.id).mention + " You must user either \"heads\" or \"tails\"")
     elif amount > 0:
-        if amount > 9999999999:
-            amount = 9999999999
-        elif flippedSide == 1 and side == "heads":
-            newCredit = user[3] + amount
-            await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
-        elif flippedSide == 2 and side == "tails":
+        if flippedSide == 1:
             newCredit = user[3] + amount
             await ctx.send(client.get_user(ctx.author.id).mention + " WIN! You now have " + str(newCredit) + " credits.")
         else:
