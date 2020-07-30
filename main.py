@@ -19,10 +19,11 @@ async def on_ready():
 @client.event
 async def on_member_join(member):
 
-    # Checking if user is in DB alread
+    # Checking if user is in DB already
     c.execute("SELECT * FROM users WHERE UserID=?", [str(member.id)])
     user = c.fetchone()
-    if member.id != client.user.id:
+    print(member.bot)
+    if not member.bot:
         if user is None:
             c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (str(member.id), 1, 0, 0, str(member)))
             conn.commit()
@@ -67,7 +68,7 @@ async def on_message(ctx):
     user = c.fetchone()
 
     # Checking to see if message author is not the bot
-    if ctx.author.id != client.user.id:
+    if not ctx.author.bot:
 
         # If user is not in the database, add them and fetch user entry again
         if user is None:
@@ -168,7 +169,6 @@ async def pay(ctx, receiver: str, amount: str):
         user = c.fetchone()
         c.execute("SELECT * FROM users WHERE Username=?", [receiver])
         receiver = c.fetchone()
-        print(client.user)
 
         # Making sure the receiver is not the user
         if receiver == user:
