@@ -155,23 +155,29 @@ async def coinflip(ctx, amount: str):
 @client.command()
 async def pay(ctx, receiver: str, amount: str):
 
-    # Fetching the user and and receiver
-    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
-    user = c.fetchone()
-    c.execute("SELECT * FROM users WHERE Username=?", [receiver])
-    receiver = c.fetchone()
-
-    print(user)
-    print(receiver)
+    # Checking if receiver is bot
+    if receiver == str(client.user):
+        await ctx.send(client.get_user(ctx.author.id).mention + " I do not want your money...")
 
     # Making sure amount is number
-    if amount.isdigit():
+    elif amount.isdigit():
         amount = int(amount)
 
-        # Making sure receiver exists, and is not the bot
-        if receiver is not None and receiver[4] is not client.user.name and receiver is not user:
+        # Fetching the user and and receiver
+        c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
+        user = c.fetchone()
+        c.execute("SELECT * FROM users WHERE Username=?", [receiver])
+        receiver = c.fetchone()
+        print(client.user)
 
-            # Making sure the user has enough credits
+        # Making sure the receiver is not the user
+        if receiver == user:
+            await ctx.send(client.get_user(ctx.author.id).mention + " You may not pay yourself.")
+
+        # Making sure receiver exists
+        elif receiver is not None:
+
+            # Checking to make sure user has enough credits
             if amount > user[3]:
                 await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
 
