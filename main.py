@@ -109,14 +109,14 @@ async def on_message(ctx):
 async def xpcheck(ctx):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
-    await ctx.send("Level: " + str(user[1]) + "\n" + str(user[2]) + "/" + str(round(100 * pow(user[1], 1.2))))
+    await ctx.send(client.get_user(ctx.author.id).mention + "\nLevel: " + str(user[1]) + "\n" + str(user[2]) + "/" + str(round(100 * pow(user[1], 1.2))))
 
 # Command to let user check their credits
 @client.command()
 async def creditcheck(ctx):
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
-    await ctx.send("Credits: " + str(user[3]))
+    await ctx.send(client.get_user(ctx.author.id).mention + "\nCredits: " + str(user[3]))
 
 # Gamble command to flip a coin to either receive or lose the bet
 @client.command()
