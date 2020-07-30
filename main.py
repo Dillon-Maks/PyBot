@@ -20,7 +20,7 @@ async def on_member_join(member):
     user = c.fetchone()
     if member.id != client.user.id:
         if user is None:
-            c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(member.id), 1, 0, 0))
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (str(member.id), 1, 0, 0, str(member)))
             conn.commit()
         dm = client.get_user(member.id)
         await dm.send("Welcome to the server!")
@@ -47,15 +47,20 @@ async def on_message(ctx):
 
     c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
     user = c.fetchone()
+
     if ctx.author.id != client.user.id:
         if user is None:
-            c.execute("INSERT INTO users VALUES (?, ?, ?, ?)", (str(ctx.author.id), 1, 0, 0))
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (str(ctx.author.id), 1, 0, 0, str(ctx.author)))
             conn.commit()
             c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
             user = c.fetchone()
         msgValue = round(pow(len(ctx.content), 0.35))
         newXP = user[2] + msgValue
         print(str(ctx.author) + " has gained " + str(msgValue) + "XP")
+
+        if str(ctx.author) != user[4]:
+            c.execute("UPDATE users SET Username=? WHERE UserID=?", [str(ctx.author), str(ctx.author.id)])
+            conn.commit()
 
         if newXP >= round(100 * pow(user[1], 1.2)):
             currentLvl = user[1] + 1
@@ -104,9 +109,38 @@ async def coinflip(ctx, amount: str):
     else:
         await ctx.send(client.get_user(ctx.author.id).mention + " You must gamble a positive number of credits.")
 
+@client.command()
+async def pay(ctx, receiver: str, amount: str):
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
+    user = c.fetchone()
+
+    c.execute("SELECT * FROM users WHERE Username=?", [receiver])
+    receiver = c.fetchone()
+
+    if amount.isdigit():
+        amount = int(amount)
+
+        if receiver is not None and receiver[4] is not client.user.name and receiver[4] is not str(ctx.author.id):
+            if amount > user[3]:
+                await ctx.send(client.get_user(ctx.author.id).mention + " You do not have enough credits.")
+            else:
+                userNewCredit = user[3] - amount
+                receiverNewCredit = receiver[3] + amount
+                c.execute("UPDATE users SET Currency=? WHERE UserID=?", (userNewCredit, str(ctx.author.id)))
+                c.execute("UPDATE users SET Currency=? WHERE UserID=?", (receiverNewCredit, receiver[0]))
+                conn.commit()
+                await ctx.send(client.get_user(ctx.author.id).mention + " You have successfully paid " + client.get_user(int(receiver[0])).mention + " " + str(amount) + " credits.")
+
+        else:
+            await ctx.send(client.get_user(ctx.author.id).mention + " You must enter a valid username. Make sure to include the # and numbers. You may not pay yourself.")
+
+    else:
+        await ctx.send(client.get_user(ctx.author.id).mention + " You must enter a postive integer.")
+
+
+
 
 client.run('NzMzNDY4ODA1Njk0NzUwNzQw.XxDmKQ.SAJEVE2YO6sXsZ5up7R6TinlYt8')
-
 
 
 
