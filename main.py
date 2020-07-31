@@ -1,7 +1,7 @@
 import sqlite3
 import random
 import discord
-from Cron import token
+from DailyReset import token
 from discord.ext import commands
 from discord.utils import find
 
