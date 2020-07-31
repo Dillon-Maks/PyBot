@@ -1,6 +1,7 @@
 import sqlite3
 import random
 import discord
+from Cron import token
 from discord.ext import commands
 from discord.utils import find
 
@@ -199,7 +200,7 @@ async def pay(ctx, receiver: str, amount: str):
         await ctx.send(client.get_user(ctx.author.id).mention + " You must enter a postive integer.")
 
 
-client.run('NzMzNDY4ODA1Njk0NzUwNzQw.XxDmKQ.SAJEVE2YO6sXsZ5up7R6TinlYt8')
+client.run(token)
 
 
 
