@@ -1,9 +1,6 @@
 import sqlite3
-import schedule
 import random
 import discord
-import time
-import asyncio
 from Token import token
 from discord.ext import commands
 from discord.utils import find
@@ -13,18 +10,6 @@ conn = sqlite3.connect('users.db')
 
 c = conn.cursor()
 
-def job():
-    c.execute("UPDATE users SET DailyClaim=1 WHERE UserID=204808276397785088")
-    conn.commit()
-    print("updated.")
-
-schedule.every().day.at("10:00").do(job)
-
-#loop.run_forever()
-#    schedule.run_pending()
-#    time.sleep(15) # wait one minute
-
-# When the bot loads, sets the activity to "Online" and prints to console
 @client.event
 async def on_ready():
     print('{0.user} is connected'.format(client))
