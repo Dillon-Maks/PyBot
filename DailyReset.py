@@ -12,7 +12,7 @@ def dailyUpdate():
     conn.commit()
     print('Daily Claim Available!')
 
-schedule.every().day.at("23:49").do(dailyUpdate)
+schedule.every().day.at("10:00").do(dailyUpdate)
 
 while True:
     schedule.run_pending()
