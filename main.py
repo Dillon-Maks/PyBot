@@ -212,9 +212,9 @@ async def daily(ctx):
 
     # If user can claim daily
     if user[5] == 1:
-        newXP = random.randrange(10, 50) + user[2]
-        newCredits = random.randrange(5, 15) + user[3]
-        c.execute("UPDATE users SET XP=?, Currency=?, DailyClaim=0 WHERE UserID=?", (newXP, newCredits, str(ctx.author.id)))
+        newXP = random.randrange(10, 50)
+        newCredits = random.randrange(5, 15)
+        c.execute("UPDATE users SET XP=?, Currency=?, DailyClaim=0 WHERE UserID=?", (newXP + user[2], newCredits  + user[3], str(ctx.author.id)))
         conn.commit()
         print(str(ctx.author) + " has claimed their daily.")
         await ctx.send(client.get_user(ctx.author.id).mention + " You have claimed " + str(newXP) + " XP and " + str(newCredits) + " credits.")
