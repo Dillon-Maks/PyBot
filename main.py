@@ -28,7 +28,7 @@ async def on_member_join(member):
     print(member.bot)
     if not member.bot:
         if user is None:
-            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (str(member.id), 1, 0, 0, str(member)))
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (str(member.id), 1, 0, 0, str(member), 1))
             conn.commit()
 
         # Sending user a direct message
@@ -75,7 +75,7 @@ async def on_message(ctx):
 
         # If user is not in the database, add them and fetch user entry again
         if user is None:
-            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (str(ctx.author.id), 1, 0, 0, str(ctx.author)))
+            c.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?, ?)", (str(ctx.author.id), 1, 0, 0, str(ctx.author), 1))
             conn.commit()
             c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
             user = c.fetchone()
