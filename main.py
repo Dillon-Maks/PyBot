@@ -1,14 +1,17 @@
 import sqlite3
 import random
 import discord
-from Token import token
 from discord.ext import commands
 from discord.utils import find
+from Token import token
+
+print("Getting ready...")
 
 client = commands.Bot(command_prefix='*')
 conn = sqlite3.connect('users.db')
 
 c = conn.cursor()
+
 
 @client.event
 async def on_ready():
@@ -199,7 +202,29 @@ async def pay(ctx, receiver: str, amount: str):
         await ctx.send(client.get_user(ctx.author.id).mention + " You must enter a postive integer.")
 
 
-client.run(token)
+# Daily Claim Command, Resets Daily
+@client.command()
+async def daily(ctx):
+
+    # Fetching user
+    c.execute("SELECT * FROM users WHERE UserID=?", [str(ctx.author.id)])
+    user = c.fetchone()
+
+    # If user can claim daily
+    if user[5] == 1:
+        newXP = random.randrange(10, 50) + user[2]
+        newCredits = random.randrange(5, 15) + user[3]
+        c.execute("UPDATE users SET XP=?, Currency=?, DailyClaim=0 WHERE UserID=?", (newXP, newCredits, str(ctx.author.id)))
+        conn.commit()
+        print(str(ctx.author) + " has claimed their daily.")
+        await ctx.send(client.get_user(ctx.author.id).mention + " You have claimed " + str(newXP) + " XP and " + str(newCredits) + " credits.")
+
+    # If user cannot claim...
+    else:
+        await ctx.send(client.get_user(ctx.author.id).mention + " You must wait until 10:00 AM Central Time to claim again.")
+
+
+client.run('NzMzNDY4ODA1Njk0NzUwNzQw.XxDmKQ.SAJEVE2YO6sXsZ5up7R6TinlYt8')
 
 
 
